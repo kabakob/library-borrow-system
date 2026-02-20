@@ -1,0 +1,68 @@
+erDiagram
+    %% ตาราง Users (เจ้าหน้าที่/Admin)
+    users {
+        INTEGER id PK
+        TEXT username
+        TEXT password_hash
+        TEXT role
+        INTEGER is_active
+    }
+
+    %% ตาราง Members (สมาชิก)
+    members {
+        INTEGER id PK
+        TEXT member_code
+        TEXT name
+        TEXT gender
+        TEXT email
+        TEXT phone
+        INTEGER is_active
+        TEXT created_at
+    }
+
+    %% ตาราง Books (หนังสือ)
+    books {
+        INTEGER id PK
+        TEXT title
+        TEXT author
+        TEXT status
+    }
+
+    %% ตาราง Borrow_Tx (หัวรายการยืม)
+    borrow_tx {
+        INTEGER id PK
+        INTEGER member_id FK
+        INTEGER staff_user_id FK
+        TEXT borrow_date
+        TEXT default_due_date
+        TEXT status
+        TEXT note
+    }
+
+    %% ตาราง Borrow_Items (รายการย่อย/รายละเอียดการยืม)
+    borrow_items {
+        INTEGER id PK
+        INTEGER tx_id FK
+        INTEGER book_id FK
+        TEXT due_date
+        TEXT return_date
+        TEXT status
+        INTEGER return_staff_user_id FK
+    }
+
+    %% ความสัมพันธ์ (Relationships)
+    
+    %% 1. Users (จนท.) -> ทำรายการยืม -> Borrow_Tx
+    users ||--o{ borrow_tx : "staff_user_id"
+    
+    %% 2. Members (สมาชิก) -> เป็นคนยืม -> Borrow_Tx
+    members ||--o{ borrow_tx : "member_id"
+
+    %% 3. Borrow_Tx (หัวบิล) -> มีรายการหนังสือหลายเล่ม -> Borrow_Items
+    borrow_tx ||--|{ borrow_items : "tx_id"
+
+    %% 4. Books (หนังสือ) -> ถูกยืม (อยู่ในรายการ) -> Borrow_Items
+    books ||--o{ borrow_items : "book_id"
+
+    %% 5. Users (จนท.) -> รับคืนหนังสือ (รายการย่อย) -> Borrow_Items
+    users ||--o{ borrow_items : "return_staff_user_id"
